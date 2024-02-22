@@ -1,0 +1,28 @@
+<div class="container">
+    <h3>Admin Login</h3>
+    <form [formGroup]="adminForm" (ngSubmit)="onSubmit()">
+      <label for="admin_id">Admin_id</label>
+      <input type="text" id="admin_id" formControlName="admin_id">
+      <div *ngIf="adminForm.get('admin_id')!.hasError('required') && adminForm.get('admin_id')!.touched">
+        Admin ID is required.
+      </div>
+  
+      <label for="admin_name">Admin_name</label>
+      <input type="text" id="admin_name" formControlName="admin_name">
+      <div *ngIf="adminForm.get('admin_name')!.hasError('required') && adminForm.get('admin_name')!.touched">
+        Admin Name is required.
+      </div>
+  
+      <label for="password">Password</label>
+      <input type="password" id="password" formControlName="password">
+      <div *ngIf="adminForm.get('password')!.hasError('required') && adminForm.get('password')!.touched">
+        Password is required.
+      </div>
+      <div *ngIf="adminForm.get('password')!.hasError('minlength') && adminForm.get('password')!.touched">
+        Password must be at least 6 characters long.
+      </div>
+  
+      <button type="submit" [disabled]="adminForm.invalid">Submit</button>
+    </form>
+  </div>
+  

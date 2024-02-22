@@ -1,0 +1,7 @@
+.names{
+    display: flex;
+    gap: 420px;
+}
+li{
+    margin: 40px;
+}
