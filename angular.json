@@ -91,7 +91,9 @@
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/assets/lib-temp.jpg",
+              "src/assets/Most_Beautiful_Libraries.webp"
             ],
             "styles": [
               "src/styles.css"
