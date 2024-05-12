@@ -1,0 +1,9 @@
+<h2>Payment Details</h2>
+<ul *ngFor="let payment for paymentDetails">
+  <li>Name: {{ payment.name }}</li>
+  <li>Card Number: {{ payment.card_number }}</li>
+  <li>Expiration Month: {{ payment.expiration_month }}</li>
+  <li>Expiration Year: {{ payment.expiration_year }}</li>
+  <li>Amount: {{ payment.amount }}</li>
+  <!-- Add more fields as needed -->
+</ul>

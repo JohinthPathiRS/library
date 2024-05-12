@@ -1,6 +1,5 @@
-// user-registration.component.ts
-
 import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 
@@ -10,19 +9,25 @@ import { Router } from '@angular/router';
   styleUrls: ['./user-registration.component.css']
 })
 export class UserRegistrationComponent {
-  user = { username: '', email: '', password: '' };
+  userForm: FormGroup;
 
-  constructor(private http: HttpClient, private router: Router) { }
+  constructor(private fb: FormBuilder, private http: HttpClient, private router: Router) {
+    this.userForm = this.fb.group({
+      username: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
   onSubmit() {
-    this.http.post('http://localhost:3000/register', this.user).subscribe(
+    this.http.post('http://localhost:3000/register', this.userForm.value).subscribe(
       (data: any) => {
         console.log('Registration successful:', data.message);
-        this.router.navigate(['/user']); 
+        this.router.navigate(['/user']);
+        this.userForm.reset();
       },
       (error) => {
         console.error('Error during registration:', error);
-        
       }
     );
   }

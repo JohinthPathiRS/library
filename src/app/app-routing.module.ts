@@ -9,6 +9,8 @@ import { AdminShowTableComponent } from './admin-show-table/admin-show-table.com
 import { HomeComponent } from './home/home.component';
 import { AboutComponent } from './about/about.component';
 import { UserRegistrationComponent } from './user-registration/user-registration.component';
+import { CheckoutComponent } from './checkout/checkout.component';
+import { PaymentSuccessDialogComponent } from './payment-success-dialog/payment-success-dialog.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent }, 
@@ -18,7 +20,11 @@ const routes: Routes = [
   {path:"admin",component:AdminComponent},
   { path: 'show', component: ShowBooksComponent },
   {path:'User-reg',component:UserRegistrationComponent},
-  {path:'about',component:AboutComponent}
+  {path:'about',component:AboutComponent},
+  {path:'checkout',component:CheckoutComponent},
+  {path:'payment',component:PaymentSuccessDialogComponent},
+  {path:'pay',component:PaymentSuccessDialogComponent}
+ 
 ];
 
 @NgModule({

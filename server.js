@@ -6,6 +6,7 @@ const mysql = require('mysql2');
 const app = express();
 app.use(cors());
 const port = 3000;
+const stripe = require('stripe')('sk_test_51OmdxzSAIkOmTQmpVGW4wJy24nwJm78Yuz7WNc1aoJuLTa3JLlZor0KIIrfju7J6pajwn0I8or7vxSoGYlzQiklz00Wht32gPh');
 
 const db = mysql.createConnection({
   host: 'localhost',
@@ -46,6 +47,96 @@ app.post('/add-book', (req, res) => {
     }
   });
 });
+app.post('/create-payment-intent', async (req, res) => {
+  const { amount, currency, paymentMethod } = req.body;
+
+  try {
+  
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount,
+      currency,
+      payment_method: paymentMethod,
+      confirm: true,
+    });
+
+  
+    await savePaymentToDatabase(paymentIntent);
+
+    
+    res.json({ clientSecret: paymentIntent.client_secret, paymentId: paymentIntent.id });
+  } catch (error) {
+    console.error('Error creating payment intent:', error);
+    res.status(500).json({ error: 'Error creating payment intent' });
+  }
+});
+
+async function savePaymentToDatabase(paymentIntent) {
+  const { id, amount, created, status } = paymentIntent;
+
+  try {
+    const connection = await pool.getConnection();
+    await connection.execute(
+      'INSERT INTO payments (payment_id, amount, created_at, status) VALUES (?, ?, ?, ?)',
+      [id, amount, new Date(created * 1000), status]
+    );
+    connection.release();
+  } catch (error) {
+    console.error('Error saving payment to database:', error);
+  }
+}
+
+
+app.post('/create-payment-intent', (req, res) => {
+  const paymentData = req.body;
+
+  
+  const sql = 'INSERT INTO payment_details (name, card_number, expiration_month, expiration_year, cvc, amount) VALUES (?, ?, ?, ?, ?, ?)';
+  const values = [
+    paymentData.name,
+    paymentData.card_number,
+    paymentData.expiration_month,
+    paymentData.expiration_year,
+    paymentData.cvc,
+    paymentData.amount
+  ];
+
+  db.query(sql, values, (err, result) => {
+    if (err) {
+      console.error('Error saving payment details:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      console.log('Payment details saved successfully');
+      res.status(200).json({ clientSecret: 'your_client_secret_key' });
+    }
+  });
+});
+
+app.get('/get-payment-details', (req, res) => {
+
+  const sql = 'SELECT * FROM payment_details';
+
+  db.query(sql, (err, results) => {
+    if (err) {
+      console.error('Error retrieving payment details:', err);
+      res.status(500).send('Internal Server Error');
+    } else {
+      console.log('Payment details retrieved successfully');
+      res.status(200).json(results);
+    }
+  });
+});
+
+
+
+app.post('/create-payment-intent', async (req, res) => {
+  const paymentIntent = await stripe.paymentIntents.create({
+    amount: 1099, 
+    currency: 'usd',
+  });
+
+  res.json({ client_secret: paymentIntent.client_secret });
+});
+
 
 
 app.post('/register', (req, res) => {
@@ -140,7 +231,6 @@ app.post('/login', (req, res) => {
 });
 
 
-
 app.post('/decrement-book/:id', (req, res) => {
   const bookId = req.params.id;
 
@@ -151,10 +241,19 @@ app.post('/decrement-book/:id', (req, res) => {
       console.error('Error decrementing book count:', err);
       res.status(500).send('Internal Server Error');
     } else {
+      const deleteQuery = 'DELETE FROM Library WHERE BookCount < 0';
+      
+      db.query(deleteQuery, (deleteErr, deleteResult) => {
+        if (deleteErr) {
+          console.error('Error deleting books with count less than 0:', deleteErr);
+        }
+      });
+
       res.status(200).json({ message: 'Book count decremented successfully' });
     }
   });
 });
+
 app.get('/admin/show-table', (req, res) => {
   const query = 'SELECT * FROM Library';
 
